@@ -1,46 +1,36 @@
-import { useReducer } from 'react';
-
-const ACTION = {
-  INCREMENT: 'increment',
-  DECREMENT: 'decrement',
-  NEW_USER_INPUT: 'newUserInput',
-  TG_COLOR: 'tgColor'
-}
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case ACTION.INCREMENT:
-      return { ...state, count: state.count + 1 };
-    case ACTION.DECREMENT:
-      return { ...state, count: state.count - 1 };
-    case ACTION.NEW_USER_INPUT:
-      return { ...state, userInput: action.payload };
-    case ACTION.TG_COLOR:
-      return { ...state, color: !state.color };
-    default:
-      throw new Error();
-  }
-}
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 
 function App() {
-  const [state, dispatch] = useReducer(reducer, { count: 0, userInput: '', color: false })
+  const [number, setNumber] = useState(0);
+  const [sectionStyle, setSectionStyle] = useState({});
+  const sectionRef = useRef();
+
+  /* 
+  useEffect is asynchronous. 
+  You see the number change in the DOM before the padding changes. 
+  useLayoutEffect is synchronous. 
+  You see the number change only after the padding has changed.
+  */
+
+  // change to useLayoutEffect to see the difference
+  useLayoutEffect(() => {
+    const random = Math.floor(Math.random() * 500);
+
+    /* loop is just to make the changes in this example slow enough to be observable */
+    for (let i = 0; i <= 100000000; i++) {
+      if (i === 100000000) setSectionStyle({ paddingTop: `${random}px` })
+    }
+  }, [number])
 
   return (
-    <main className="App" style={{ color: state.color ? '#FFF' : '#FFF952' }}>
-      <input
-        type="text"
-        value={state.userInput}
-        onChange={(e) => dispatch({ type: ACTION.NEW_USER_INPUT, payload: e.target.value })}
-      />
-      <br /><br />
-      <p>{state.count}</p>
-      <section>
-        <button onClick={(() => dispatch({ type: ACTION.DECREMENT }))}>-</button>
-        <button onClick={(() => dispatch({ type: ACTION.INCREMENT }))}>+</button>
-        <button onClick={(() => dispatch({ type: ACTION.TG_COLOR }))}>Color</button>
+    <main className="App">
+      <section ref={sectionRef} style={sectionStyle}>
+        <p>{number}</p>
+        <div>
+          <button onClick={() => setNumber(prev => prev - 1)}>-</button>
+          <button onClick={() => setNumber(prev => prev + 1)}>+</button>
+        </div>
       </section>
-      <br /><br />
-      <p>{state.userInput}</p>
     </main>
   );
 }
