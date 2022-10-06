@@ -1,39 +1,34 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { render } from '@testing-library/react';
+import { useState,useRef} from 'react';
 
-const getArray = () => {
-  for (let i = 0; i < 1000000000; i++) {
-    //do something expensive
-  }
-  return ['Dave', 'Gray'];
-}
+
 
 function App() {
-  const [userNumber, setUserNumber] = useState('');
-  const [randomInput, setRandomInput] = useState('');
+  
+    const [randomInput,setRandomInput] = useState('')
+    const renders = useRef(0)
 
-  const fib = useCallback((n) => {
-    return (n <= 1) ? n : fib(n - 1) + fib(n - 2);
-  }, [])
+    const handlechange = (e)=>{
+        setRandomInput(e.target.value)
+        renders.current++
+    }
 
-  const fibNumber = useMemo(() => fib(userNumber), [userNumber, fib]);
 
-  const myArray = useMemo(() => getArray(), []);
+    return(
+        <main className='App'>
+            <input
+            type="text"
+            value={randomInput}
+            placeholder="random input"
+            onChange={handlechange}
+            />
+            <p>renders:{renders.current}</p>
+            <br></br>
+            <p>{randomInput}</p>
 
-  useEffect(() => {
-    console.log('New array')
-  }, [myArray])
 
-  return (
-    <main className="App">
-      <label>Fibonacci Sequence:</label>
-      <input type="number" value={userNumber} placeholder="Position" onChange={(e) => setUserNumber(e.target.value)} />
-      <p>Number: {fibNumber || "--"}</p>
-      <br /><br />
-      <label>Random Input:</label>
-      <input type="text" value={randomInput} placeholder="Random Input" onChange={(e) => setRandomInput(e.target.value)} />
-      <p>{randomInput}</p>
-    </main>
-  );
+        </main>
+    )
 }
 
 export default App;
